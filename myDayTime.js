@@ -18,7 +18,7 @@ exports.handler = (event, context) => {
          
         context.succeed(
           generateResponse(
-            buildSpeechletResponse("Welcome to my day time, ask to get current time or day of week", false),
+            buildSpeechletResponse("Welcome to my day time, say what's the current time or day of week a given date falls on", false),
             {}
           )
         );
@@ -27,6 +27,9 @@ exports.handler = (event, context) => {
       case "IntentRequest":
         // Intent Request
         console.log(`INTENT REQUEST`);
+
+        //global day array
+        var DAY_ARRAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         
         switch(event.request.intent.name) {
 
@@ -62,7 +65,7 @@ exports.handler = (event, context) => {
                 if (event.request.intent.slots.givenDate.value == null ||event.request.intent.slots.givenDate.value == ""){
                         context.succeed(
                       generateResponse(
-                        buildSpeechletResponse(`Sorry, I did not catch that, please include a date and try again`, false),
+                        buildSpeechletResponse(`Sorry, I did not catch that please include a month, day and year and try again`, false),
                         {}
                       )
                     )
@@ -96,39 +99,14 @@ exports.handler = (event, context) => {
                     );
                    break;
                }
+                //get day of week from @DAY_ARRAY
+                var dayOfWeek = DAY_ARRAY[currentDay.getDay()];
                 
-                var daySpelled;
-                switch(currentDay.getDay()){
-                    case 0:
-                        daySpelled = "Sunday";
-                        break;
-                    case 1:
-                        daySpelled = "Monday";
-                        break;    
-                    case 2:
-                        daySpelled = "Tuesday";
-                        break;
-                    case 3:
-                        daySpelled = "Wednesday";
-                        break;
-                    case 4:
-                        daySpelled = "Thursday";
-                        break;
-                    case 5:
-                        daySpelled = "Friday";
-                        break;
-                    case 6:
-                        daySpelled = "Saturday";
-                        break;
-                    default:
-                        daySpelled = "NO DAY";
-                        break;
-                }
                 //months 0-11, add 1 to get months 1-12
                 var date = currentDay.getMonth()+1;
                 var year = currentDay.getFullYear();
                 
-                if(daySpelled == "NO DAY"){
+                if(daySpelled == null){
                     context.fail(
                       generateResponse(
                         buildSpeechletResponse('I did not catch that, please say the date again', false),
@@ -138,7 +116,7 @@ exports.handler = (event, context) => {
                 }else{
                     context.succeed(
                       generateResponse(
-                        buildSpeechletResponse(`The day is ${daySpelled} for ${date} ${currentDay.getDate()} ${year}`, true),
+                        buildSpeechletResponse(`The day is ${dayOfWeek} for ${date} ${currentDay.getDate()} ${year}`, true),
                         {}
                       )
                     );
@@ -159,34 +137,10 @@ exports.handler = (event, context) => {
                 day = currentDate[1];
                 year = currentDate[2];
                 
+                //get day of week from @DAY_ARRAY
+                var dayOfWeek = DAY_ARRAY[estDate.getDay()];
                 
-                switch(estDate.getDay()){
-                    case 0:
-                        daySpelled = "Sunday";
-                        break;    
-                    case 1:
-                        daySpelled = "Monday";
-                        break;
-                    case 2:
-                        daySpelled = "Tuesday";
-                        break;
-                    case 3:
-                        daySpelled = "Wednesday";
-                        break;
-                    case 4:
-                        daySpelled = "Thursday";
-                        break;
-                    case 5:
-                        daySpelled = "Friday";
-                        break;
-                    case 6:
-                        daySpelled = "Saturday";
-                        break;
-                    default:
-                        daySpelled = "NO DAY";
-                        break;
-                }
-                if(daySpelled == "Something went wrong"){
+                if(dayOfWeek == null){
                     context.fail(
                       generateResponse(
                         buildSpeechletResponse('I did not catch that, please try again', true),
